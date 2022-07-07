@@ -1,1 +1,3 @@
-# product-site-backend
+# Backend Project
+
+Add virtual environment
