@@ -17,6 +17,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIRS = os.path.join(BASE_DIR,'templates')
 STATIC_DIR = os.path.join(BASE_DIR, "static")
+MEDIA_ROOT= os.path.join (BASE_DIR, 'media')
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,8 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Questrealty_app',
-    # 'paystack',
     'crispy_forms',
+    
     
 ]
 
@@ -75,6 +76,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Questrealty.wsgi.application'
+
+
 
 
 # Database
@@ -124,17 +127,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL ='/media/'
+
 STATICFILES_DIRS = [STATIC_DIR]
 
 PAYSTACK_SECRET_KEY = os.environ.get('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.environ.get('PAYSTACK_PUBLIC_KEY')
 
 CRISPY_TEMPLATE_PACK = 'uni_form'
-
-# SENDING GRID EMAIL
-# EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
-# SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-# SENDGRID_SANDBOX_MODE_IN_DEBUG=False
 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

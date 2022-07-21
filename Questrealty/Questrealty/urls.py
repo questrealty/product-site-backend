@@ -19,9 +19,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Questrealty_app.urls')),
-    # path("paystack", include(('paystack.urls', 'paystack'),namespace='paystack')),
     
     
- 
     
 ]

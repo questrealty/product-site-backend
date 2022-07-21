@@ -1,4 +1,7 @@
+from email import message
+from turtle import title
 from django.db import models
+from django.dispatch import receiver
 from django.forms import CharField
 import secrets
 from .paystack import PayStack
@@ -49,11 +52,21 @@ class Room(models.Model):
         return self.name
          
 class Message(models.Model):
-    value = models.CharField(max_length=1000)
+    value = models.CharField(max_length=10000)
     date = models.DateTimeField(auto_now_add=True)
-    user = models.CharField(max_length=1000)
+    user = models.CharField(max_length=10000)
     room = models.CharField(max_length=10000)
     
     def __str__(self):
         return self.value
+    
+class Review(models.Model):
+    name = models.CharField(max_length=100)
+    profession = models.CharField(max_length=100)
+    image = models.ImageField(blank=True, null=True, upload_to='upload/pics')
+    content = models.TextField()
+    
+    def __str__(self):
+        return self.name
+    
     

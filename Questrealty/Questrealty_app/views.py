@@ -1,8 +1,10 @@
-from django.http import HttpRequest, HttpResponse
+from email import message
+from django.dispatch import receiver
+from django.http import HttpRequest, HttpResponse, JsonResponse 
 from django.shortcuts import get_object_or_404, redirect, render
 from .form import PaymentForm
 from django.conf import settings
-from .models import Payment, Room, Message
+from .models import Payment, Review, Room, Message
 from django.contrib import messages
 from django.core import mail
 from django.core.mail import send_mail
@@ -66,34 +68,45 @@ def email(request):
 
 def chat(request):
     return render(request, 'chat.html')
-       
- 
+
 def room(request, room):
     username = request.GET.get('username')
     room_details = Room.objects.get(name=room)
-    return render(request, 'room.html', {'username': username, 'room':room, 'room_details': room_details})
+    return render(request, 'room.html', {
+        'username': username,
+        'room': room,
+        'room_details': room_details
+    })
 
-def checkRoom(request, room):
+def checkview(request):
     room = request.POST['room_name']
     username = request.POST['username']
-    
+
     if Room.objects.filter(name=room).exists():
         return redirect('/'+room+'/?username='+username)
     else:
         new_room = Room.objects.create(name=room)
-        new_room.save()   
-    return render(request, 'room.html', {'room':room})
+        new_room.save()
+        return redirect('/'+room+'/?username='+username)
 
 def send(request):
     message = request.POST['message']
     username = request.POST['username']
     room_id = request.POST['room_id']
-    
+
     new_message = Message.objects.create(value=message, user=username, room=room_id)
     new_message.save()
-    return HttpResponse('Message sent sucessfully')
+    return HttpResponse('Message sent successfully')
+
+def getMessages(request, room):
+    room_details = Room.objects.get(name=room)
+
+    messages = Message.objects.filter(room=room_details.id)
+    return JsonResponse({"messages":list(messages.values())})
+    
+def review(request):
+    review = Review.objects.all()
+    return render(request, 'review.html', {'review': review})  
     
     
-    
-    
-    
+
