@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+            
+
+    <div class="page-wrapper bg-gra-02 p-t-130 p-b-100 font-poppins">
+        <div class="wrapper wrapper--w680">
+            <div class="card card-4">
+                <div class="card-body">
+                    <h2 class="title text-center">Make Payment:NGN {{pay.amount}}</h2>
+                   <script src="https://js.paystack.co/v1/inline.js"></script>
+                   <button class="btn btn--radius-2 btn--blue" onclick="payWithPayStack()" id="django-paystack-button">Payment</button> 
+                </div>   
+            </div>
+        </div>
+   </div>
+
+
+<script>
+    function payWithPayStack(){
+        let currency = 'NGN';
+        let plan = '';
+        let ref = '{{pay.ref}}'
+        let obj = {
+            key: 'pk_test_a423e1c9c5c5aef10fd53f9214c4c8664fb2ef6a',
+            // key: '{{paystack_public_key}}',
+            email: '{{pay.email}}',
+            amount: '{{pay.amount_value}}',
+            ref: ref,
+            callback: function(response){
+                window.location.href = "{% url 'Questrealty_app:verify-payment' pay.ref %}";
+            }
+
+        }
+
+        if (Boolean(currency)){
+            obj.currency = currency.toUpperCase()      
+        }
+        if (Boolean(plan)){
+            obj.plan = plan;
+        }
+
+        var handler = PaystackPop.setup(obj);
+        handler.openIframe();
+
+    }
+</script>
+
+{% endblock %}
+    
