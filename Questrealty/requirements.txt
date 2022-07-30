@@ -11,11 +11,9 @@ crispy==0.6.3
 cryptography==37.0.4
 cycler==0.11.0
 daphne==3.0.2
-Django==3.2
 django-crispy-forms==1.14.0
 django-tinymce==3.4.0
 django-widget-tweaks==1.4.1
-djangorestframework==3.7.3
 fabio==0.13.0
 fonttools==4.33.3
 form==0.0.1
@@ -28,7 +26,6 @@ matplotlib==3.5.2
 numpy==1.21.6
 packaging==21.3
 Pillow==9.0.1
-psycopg2 @ file:///C:/ci/psycopg2_1612298715048/work
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
@@ -38,16 +35,13 @@ PyQt5==5.15.6
 PyQt5-Qt5==5.15.2
 PyQt5-sip==12.10.1
 python-dateutil==2.8.2
-pytz==2017.3
 requests==2.28.1
 service-identity==21.1.0
 silx==1.0.0
 six==1.16.0
-sqlparse @ file:///tmp/build/80754af9/sqlparse_1602184451250/work
 Twisted==22.4.0
 twisted-iocpsupport==1.0.2
 txaio==22.2.1
-typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1631814937681/work
 urllib3==1.26.10
 wincertstore==0.2
 zope.interface==5.4.0
