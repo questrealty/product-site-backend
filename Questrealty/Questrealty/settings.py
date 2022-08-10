@@ -107,10 +107,10 @@ WSGI_APPLICATION = 'Questrealty.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'questRealtyDB',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': '127.0.0.1',
+        'NAME': 'ddvbslvru9o3en',
+        'USER': 'jiinczwrzeffvl',
+        'PASSWORD': '889c03b522c6afe55cd07a88e18d32bc0fe36afc600514c9fecfb12defcd75b3',
+        'HOST': 'ec2-3-217-14-181.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
