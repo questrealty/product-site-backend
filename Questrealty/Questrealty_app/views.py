@@ -1,42 +1,68 @@
 from email import message
-from django.dispatch import receiver
-from django.http import HttpRequest, HttpResponse, JsonResponse 
-from django.shortcuts import get_object_or_404, redirect, render
-from .form import PaymentForm
-from django.conf import settings
-from .models import Payment, Review, Room, Message
+from sqlite3 import Timestamp
+from django.http.response import JsonResponse
+from django.http import HttpRequest, HttpResponse 
+from django.shortcuts import render
 from django.contrib import messages
 from django.core import mail
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-import os
+from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+from django.conf import settings
+from .models import Wallet, WalletTransaction, Review, Message
+from  Questrealty_app.serializers import ReviewSerializer, WalletSerializer, DepositSerializer, MessageSerializer, UserSerializer
+import requests
 
 
-# Create your views here.
 
-def initiate_payment(request: HttpRequest) -> HttpResponse:
-    if request.method == 'POST':
-        form = PaymentForm(request.POST)
-        if form.is_valid():
-            pay = form.save()
-            return render(request, 'payment.html', {'pay': pay, 'paystack_public_key': settings.PAYSTACK_PUBLIC_KEY})
-    else:
-        form = PaymentForm()
-    return render(request, 'initiate_pay.html', {'form':form})
+class WalletInfo(APIView):
+   
+    def get(self, request):
+        wallet = Wallet.objects.filter(user=request.user.id).first()
+        data = WalletSerializer(wallet).data
+        return Response(data)
 
 
-def verify_payment(request: HttpRequest, ref:str) -> HttpResponse:
-    payment = get_object_or_404(Payment, ref=ref)
-    verified = payment.verify_payment()
-    if verified:
-        messages.error(request, 'Verification Failed')
-    else:
+class DepositFunds(APIView):
+
+    def post(self, request):
+        serializer = DepositSerializer(
+            data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+
+        resp = serializer.save()
+        return Response(resp)
+
+class VerifyDeposit(APIView):
+
+    def get(self, request, reference):
+        transaction = WalletTransaction.objects.get(
+        paystack_payment_reference=reference, wallet__user=request.user)
+        reference = transaction.paystack_payment_reference
+        url = 'https://api.paystack.co/transaction/verify/{}'.format(reference)
+        headers = {"authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
         
-        messages.success(request, 'Verification Successful')
-    return redirect('Questrealty_app:initiate-payment')
+        r = requests.get(url, headers=headers)
+        resp = r.json()
+        if resp['data']['status'] == 'success':
+            status = resp['data']['status']
+            amount = resp['data']['amount']
+            WalletTransaction.objects.filter(paystack_payment_reference=reference).update(status=status,
+                                                                                        amount=amount)
+            return Response(resp)
+        return Response(resp)
 
-
+class ReviewView(APIView): 
+    def get(self, request, *args, **kwargs):
+        qs = Review.objects.all()
+        serializer = ReviewSerializer(qs, many=True)
+        return Response(serializer.data)
+    
 def contact(request):
     if request.method =='POST':
         name = request.POST.get('name')
@@ -65,48 +91,36 @@ def contact(request):
 
 def email(request):
     return render(request, 'email.html')
-
-def chat(request):
-    return render(request, 'chat.html')
-
-def room(request, room):
-    username = request.GET.get('username')
-    room_details = Room.objects.get(name=room)
-    return render(request, 'room.html', {
-        'username': username,
-        'room': room,
-        'room_details': room_details
-    })
-
-def checkview(request):
-    room = request.POST['room_name']
-    username = request.POST['username']
-
-    if Room.objects.filter(name=room).exists():
-        return redirect('/'+room+'/?username='+username)
-    else:
-        new_room = Room.objects.create(name=room)
-        new_room.save()
-        return redirect('/'+room+'/?username='+username)
-
-def send(request):
-    message = request.POST['message']
-    username = request.POST['username']
-    room_id = request.POST['room_id']
-
-    new_message = Message.objects.create(value=message, user=username, room=room_id)
-    new_message.save()
-    return HttpResponse('Message sent successfully')
-
-def getMessages(request, room):
-    room_details = Room.objects.get(name=room)
-
-    messages = Message.objects.filter(room=room_details.id)
-    return JsonResponse({"messages":list(messages.values())})
     
-def review(request):
-    review = Review.objects.all()
-    return render(request, 'review.html', {'review': review})  
-    
-    
+def user_list(request, pk=None):
+   
+    if request.method == 'GET':
+        if pk:
+            users = User.objects.filter(id=pk)
+        else:
+            users = User.objects.all()
+        serializer = UserSerializer(users, many=True, context={'request': request})
+        return JsonResponse(serializer.data, safe=False)
 
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = UserSerializer(data=data)    
+        if serializer.is_valid():
+            serializer.save()                                          
+            return JsonResponse(serializer.data, status=201)    
+        return JsonResponse(serializer.errors, status=400)  
+  
+def message_list(request):
+    
+    if request.method == 'GET':    
+        messages = Message.objects.filter()
+        serializer = MessageSerializer(messages, many=True, context={'request': request})
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = MessageSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)    
+        

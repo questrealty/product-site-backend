@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Payment, Review, Message, Room
+from .models import Review, Wallet, WalletTransaction, Message
 
 # Register your models here.
-admin.site.register(Payment)
+admin.site.register(Wallet)
+admin.site.register(WalletTransaction)
 admin.site.register(Message)
-admin.site.register(Room)
 admin.site.register(Review)

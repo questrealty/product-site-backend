@@ -1,64 +1,12 @@
 from email import message
+from django.contrib.auth.models import User
 from turtle import title
 from django.db import models
 from django.dispatch import receiver
-from django.forms import CharField
-import secrets
-from .paystack import PayStack
+from django.utils import timezone
+
 
 # Create your models here.
-
-class Payment(models.Model):
-    
-    fullname = models.CharField(max_length=100)
-    amount = models.PositiveIntegerField()
-    ref = models.CharField(max_length=200)
-    email = models.EmailField()
-    verified = models.BooleanField(default=False)
-    date = models.DateTimeField(auto_now_add=True)
-    
-    class Meta():
-        ordering = ('-date',)
-        
-    def __str__(self):
-        return f"payment: {self.amount}"
-    
-    def save(self, *args, **kwargs) -> None:
-        while not self.ref:
-            ref = secrets.token_urlsafe(50)
-            object_with_similar_ref = Payment.objects.filter(ref=ref)
-            if not object_with_similar_ref:
-                self.ref = ref
-        super().save(*args, **kwargs) 
-        
-    def amount_value(self) -> int:
-        return self.amount *100       
-        
-    def verify_payment(self):
-        paystack = PayStack()
-        status, result = paystack.verify_payment(self.ref, self.amount)
-        if status:
-            if result['amount'] / 100 == self.amount:
-                self.verified = True
-            self.save()
-        if self.verified:
-            return True
-        return False
-            
-class Room(models.Model):
-    name = models.CharField(max_length=200) 
-    
-    def __str__(self):
-        return self.name
-         
-class Message(models.Model):
-    value = models.CharField(max_length=10000)
-    date = models.DateTimeField(auto_now_add=True)
-    user = models.CharField(max_length=10000)
-    room = models.CharField(max_length=10000)
-    
-    def __str__(self):
-        return self.value
     
 class Review(models.Model):
     name = models.CharField(max_length=100)
@@ -69,4 +17,45 @@ class Review(models.Model):
     def __str__(self):
         return self.name
     
+class Wallet(models.Model):
+    user = models.OneToOneField(
+        User, null=True, on_delete=models.CASCADE)
+    currency = models.CharField(max_length=50, default='NGN')
+    created_at = models.DateTimeField(default=timezone.now, null=True)
+
+
+    def __str__(self):
+        return self.user.__str__()
+
+class WalletTransaction(models.Model):
+
+    TRANSACTION_TYPES = (
+        ('deposit', 'deposit'),
+        ('transfer', 'transfer'),
+        ('withdraw', 'withdraw'),
+    )
+    wallet = models.ForeignKey(Wallet, null=True, on_delete=models.CASCADE)
+    transaction_type = models.CharField(
+        max_length=200, null=True,  choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=100, null=True, decimal_places=2)
+    timestamp = models.DateTimeField(default=timezone.now, null=True)
+    status = models.CharField(max_length=100, default="pending")
+    paystack_payment_reference = models.CharField(max_length=100, default='', blank=True)
+
+    def __str__(self):
+        return self.wallet.user.__str__()
     
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiver')
+    message = models.CharField(max_length=2000)
+    timestamp = models.DateTimeField(default=timezone.now)
+    
+    
+    def __str__(self):
+        return self.message
+
+    class Meta:
+        ordering = ('timestamp',)
+   
