@@ -106,7 +106,4 @@ def getMessages(request, room):
     
 def review(request):
     review = Review.objects.all()
-    return render(request, 'review.html', {'review': review})  
-    
-    
-
+    return render(request, 'review.html', {'review': review})
