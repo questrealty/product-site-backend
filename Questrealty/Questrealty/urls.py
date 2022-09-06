@@ -15,12 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('Questrealty_app.urls')),
     path('', include('property_types.urls')),
+    path('accounts/', include('django.contrib.auth.urls')), #new
     path('api/', include('rest_framework.urls')),  # new
-    path('', include('listed_properties.urls')) # new
+    path('', include('listed_properties.urls')), # new
+    path('', include('accounts.urls')), # new
+    path('api/password_reset/', include('django_rest_passwordreset.urls')), #new
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'), #new
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'), #new
 ]

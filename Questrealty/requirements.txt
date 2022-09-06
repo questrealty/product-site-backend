@@ -16,6 +16,9 @@ django-crispy-forms==1.14.0
 django-tinymce==3.4.0
 django-widget-tweaks==1.4.1
 # djangorestframework==3.7.3
+django-crispy-forms==1.14.0
+django-tinymce==3.4.0
+django-widget-tweaks==1.4.1
 fabio==0.13.0
 fonttools==4.33.3
 form==0.0.1
