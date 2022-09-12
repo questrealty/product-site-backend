@@ -12,7 +12,8 @@ crispy==0.6.3
 cryptography==37.0.4
 cycler==0.11.0
 daphne==3.0.2
-Django==3.2
+dj-database-url==1.0.0
+Django==4.1.1
 django-cors-headers==3.13.0
 django-crispy-forms==1.14.0
 django-filter==22.1
@@ -24,6 +25,7 @@ djangorestframework-simplejwt==5.2.0
 fabio==0.13.0
 fonttools==4.33.3
 form==0.0.1
+gunicorn==20.1.0
 h5py==3.6.0
 hyperlink==21.0.0
 idna==3.3

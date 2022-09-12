@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +26,18 @@ MEDIA_ROOT= os.path.join (BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z2xi#!so&jmg==8iw(5(!t)!xlbfo$gy&24-a&$v9bd@tx0t3k'
+SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+
+DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -118,14 +125,20 @@ WSGI_APPLICATION = 'Questrealty.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'questrealtydatabase',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'questrealtydb',
+    #     'USER': 'questrealtydb_user',
+    #     'PASSWORD': '12345',
+    #     'HOST': 'dpg-ccflhbpa6gdgjihhqf1g-a',
+    #     'PORT': '5432',
+    # }
+
+    'default': dj_database_url.config(
+        # Feel free to alter this value to suit your needs.
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600
+    )
 }
 
 DATEBASE_ROUTERS = {'accounts.router.AuthRouter'}
