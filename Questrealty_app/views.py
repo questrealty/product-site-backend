@@ -8,7 +8,8 @@ from django.core import mail
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,6 +18,8 @@ from django.conf import settings
 from .models import Wallet, WalletTransaction, Review, Message
 from  Questrealty_app.serializers import ReviewSerializer, WalletSerializer, DepositSerializer, MessageSerializer, UserSerializer
 import requests
+
+User = get_user_model()
 
 
 

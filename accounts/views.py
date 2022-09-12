@@ -8,8 +8,10 @@ from django.views import generic
 from django.urls import reverse_lazy
 # from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.views import PasswordChangeView
+
+User = get_user_model()
 
 
 # TO REGISTER
